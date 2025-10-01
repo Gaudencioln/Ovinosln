@@ -8,6 +8,6 @@ export const DB = (()=>{
   async function get(id){ await ensure(); return new Promise((res,rej)=>{ const r=st().get(Number(id)); r.onsuccess=()=>res(r.result||null); r.onerror=()=>rej(r.error); }); }
   async function list(){ await ensure(); return new Promise((res,rej)=>{ const out=[]; const c=st().openCursor(); c.onsuccess=e=>{ const cur=e.target.result; if(cur){ out.push(cur.value); cur.continue(); } else res(out); }; c.onerror=()=>rej(c.error); }); }
   async function search(q=''){ const all=await list(); const s=(q||'').toLowerCase(); if(!s) return all; return all.filter(a=> (a.nome||'').toLowerCase().includes(s) || String(a.brinco||'').toLowerCase().includes(s)); }
-  async function seed(){ const all=await list(); if(all.length) return; const pai=await add({nome:'Reprodutor B', brinco:'B01', sexo:'M', classificacao:'excelente', status:'ativo'}); const mae=await add({nome:'Matrize A', brinco:'A01', sexo:'F', classificacao:'produtora', status:'ativo'}); await add({nome:'Cordeiro C', brinco:'C01', sexo:'M', classificacao:'avaliacao', status:'ativo', paiId:pai, maeId:mae}); }
+  async function seed(){ return; } // Sem registros automáticos
   return { open, add, put, get, list, search, seed };
 })();
