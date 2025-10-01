@@ -1,0 +1,1 @@
+// relatorios.js placeholder

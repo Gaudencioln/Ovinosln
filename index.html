@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OVINOS LN</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./icon-192.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body class="bg-stone-50 text-stone-900">
+  <header class="bg-[var(--ln-orange)] text-white px-4 py-3 text-center font-bold text-xl sticky top-0 shadow">OVINOS LN</header>
+  <main id="app" class="max-w-5xl mx-auto p-4 space-y-6">
+    <!-- MENU -->
+    <section id="view-home" class="view">
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <button data-nav="dashboard" class="menu"><span>🏠</span><b>Dashboard</b></button>
+        <button data-nav="rebanho" class="menu"><span>🐑</span><b>Rebanho</b></button>
+        <button data-nav="genealogia" class="menu"><span>🌳</span><b>Genealogia</b></button>
+        <button data-nav="relatorios" class="menu"><span>📊</span><b>Relatórios</b></button>
+        <button data-nav="config" class="menu"><span>⚙️</span><b>Configurações</b></button>
+        <button id="btn-atalho-novo" class="menu"><span>➕</span><b>Novo Animal</b></button>
+      </div>
+    </section>
+  </main>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
