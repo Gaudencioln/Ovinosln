@@ -7,14 +7,20 @@
   <link rel="manifest" href="./manifest.json">
   <link rel="icon" href="./icon-192.png">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
   <link rel="stylesheet" href="./style.css">
 </head>
 <body class="bg-stone-50 text-stone-900">
-  <header class="bg-[var(--ln-orange)] text-white px-4 py-3 text-center font-bold text-xl sticky top-0 shadow">OVINOS LN</header>
-  <main id="app" class="max-w-5xl mx-auto p-4 space-y-6">
+  <header class="header"> 
+    <img src="./icon-192.png" class="h-7 w-7 rounded-sm" alt="OVINOS LN">
+    <span>OVINOS LN</span>
+  </header>
+
+  <main id="app" class="max-w-6xl mx-auto p-4 space-y-6">
     <!-- MENU -->
     <section id="view-home" class="view">
-      <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
         <button data-nav="dashboard" class="menu"><span>🏠</span><b>Dashboard</b></button>
         <button data-nav="rebanho" class="menu"><span>🐑</span><b>Rebanho</b></button>
         <button data-nav="genealogia" class="menu"><span>🌳</span><b>Genealogia</b></button>
@@ -23,7 +29,123 @@
         <button id="btn-atalho-novo" class="menu"><span>➕</span><b>Novo Animal</b></button>
       </div>
     </section>
+
+    <!-- DASHBOARD -->
+    <section id="view-dashboard" class="view hidden">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="card"><div class="kpi-title">Total</div><div id="kpi-total" class="kpi">0</div></div>
+        <div class="card"><div class="kpi-title">Matrizes</div><div id="kpi-matrizes" class="kpi">0</div></div>
+        <div class="card"><div class="kpi-title">Reprodutores</div><div id="kpi-reprodutores" class="kpi">0</div></div>
+        <div class="card"><div class="kpi-title">Inativos</div><div id="kpi-inativos" class="kpi">0</div></div>
+      </div>
+      <div class="card mt-4">
+        <div class="font-semibold mb-2">Evolução (exemplo)</div>
+        <div id="chart-evolucao" class="h-64"></div>
+      </div>
+      <div class="mt-4"><button class="btn-outline" data-back>Voltar</button></div>
+    </section>
+
+    <!-- REBANHO -->
+    <section id="view-rebanho" class="view hidden">
+      <div class="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
+        <input id="busca" class="input flex-1" placeholder="Buscar nome/brinco..." />
+        <div class="flex gap-2">
+          <button id="btn-novo" class="btn">+ Novo</button>
+          <button id="btn-toggle-inativos" class="btn-outline">Mostrar Inativos: Não</button>
+        </div>
+      </div>
+      <div class="flex flex-wrap gap-2 my-2">
+        <button class="chip chip-red" data-cls="descartar">Descartar</button>
+        <button class="chip chip-yellow" data-cls="avaliacao">Em Avaliação</button>
+        <button class="chip chip-green" data-cls="produtora">Boa Produtora</button>
+        <button class="chip chip-blue" data-cls="excelente">Excelente</button>
+        <button class="chip" data-cls="limpar">Limpar</button>
+      </div>
+      <div id="lista" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+      <div class="mt-4"><button class="btn-outline" data-back>Voltar</button></div>
+    </section>
+
+    <!-- GENEALOGIA -->
+    <section id="view-genealogia" class="view hidden">
+      <div class="flex flex-wrap gap-2 items-center mb-2">
+        <input id="gene-id" class="input w-40" placeholder="ID do animal..." />
+        <button id="btn-ver-arvore" class="btn">Ver Árvore</button>
+        <button id="btn-exportar-img" class="btn-outline">Exportar imagem</button>
+      </div>
+      <div id="gene-container" class="card relative overflow-auto" style="height:560px">
+        <!-- marca d'água -->
+        <img src="./sheep.png" alt="ovelha" class="wm" />
+        <div id="arvore" class="w-full h-full"></div>
+      </div>
+      <div class="mt-4"><button class="btn-outline" data-back>Voltar</button></div>
+    </section>
+
+    <!-- RELATÓRIOS -->
+    <section id="view-relatorios" class="view hidden">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <button id="btn-rel-animal" class="menu"><span>📄</span><b>Por Animal</b></button>
+        <button id="btn-rel-geral" class="menu"><span>📊</span><b>Geral</b></button>
+      </div>
+      <div id="rel-box" class="card hidden">
+        <div class="flex items-center gap-3 mb-2">
+          <img src="./icon-192.png" class="h-8 w-8 rounded-sm" />
+          <h3 id="rel-titulo" class="font-semibold"></h3>
+        </div>
+        <div id="rel-conteudo"></div>
+        <div class="mt-3"><button id="btn-exportar-rel-img" class="btn-outline">Exportar Imagem</button></div>
+      </div>
+      <div class="mt-4"><button class="btn-outline" data-back>Voltar</button></div>
+    </section>
+
+    <!-- CONFIG -->
+    <section id="view-config" class="view hidden">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div class="card">
+          <h3 class="font-semibold mb-2">Backup</h3>
+          <div class="flex gap-2">
+            <button id="btn-exportar" class="btn">Exportar (JSON)</button>
+            <label class="btn-outline cursor-pointer">Importar
+              <input id="input-importar" type="file" accept="application/json" class="hidden" />
+            </label>
+          </div>
+        </div>
+        <div class="card">
+          <h3 class="font-semibold mb-2">Preferências</h3>
+          <label class="flex items-center gap-2"><input id="toggle-tema" type="checkbox"> Tema escuro</label>
+        </div>
+      </div>
+      <div class="mt-4"><button class="btn-outline" data-back>Voltar</button></div>
+    </section>
   </main>
+
+  <!-- MODAL -->
+  <dialog id="modal" class="rounded-xl p-0 w-full max-w-2xl">
+    <form method="dialog" class="bg-white rounded-xl">
+      <div class="p-4 border-b"><h3 id="modal-title" class="font-semibold">Novo Animal</h3></div>
+      <div class="p-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+        <input id="f-nome" class="input" placeholder="Nome">
+        <input id="f-brinco" class="input" placeholder="Brinco">
+        <select id="f-sexo" class="input"><option value="">Sexo</option><option value="F">Fêmea</option><option value="M">Macho</option></select>
+        <input id="f-nascimento" type="date" class="input">
+        <input id="f-pai" type="number" class="input" placeholder="ID Pai (opcional)">
+        <input id="f-mae" type="number" class="input" placeholder="ID Mãe (opcional)">
+        <select id="f-classificacao" class="input">
+          <option value="">Classificação</option>
+          <option value="descartar">Descartar</option>
+          <option value="avaliacao">Em Avaliação</option>
+          <option value="produtora">Boa Produtora</option>
+          <option value="excelente">Excelente</option>
+        </select>
+        <select id="f-status" class="input"><option value="ativo">Ativo</option><option value="inativo">Inativo</option></select>
+        <select id="f-motivo" class="input hidden"><option value="">Motivo (se inativo)</option><option value="abate">Abate</option><option value="venda">Venda</option><option value="doenca_morte">Doença/Morte</option></select>
+      </div>
+      <div class="p-4 flex justify-end gap-2 border-t">
+        <button value="cancel" class="btn-outline">Cancelar</button>
+        <button id="btn-salvar" value="default" class="btn">Salvar</button>
+      </div>
+    </form>
+  </dialog>
+
   <script type="module" src="./app.js"></script>
 </body>
 </html>
